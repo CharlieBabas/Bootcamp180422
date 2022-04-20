@@ -7,6 +7,33 @@ let arrJsnUsuarios = [{_id:1, strNombre: 'Carlos', strApellido: 'Aguilar', strEm
 // const path = require('path');
 // const rutaDescarga = path.resolve(__dirname, '../../assets/index.html');
 
+app.get('/obtenerUsuario', (req,res) => {
+    const idUsu = Number(req.query._id);
+    if(!idUsu){
+        return res.status(400).json({
+            ok: false,
+            msg: 'No ha ingresado ningún id'
+        })
+    }
+
+    const id = arrJsnUsuarios.find(id => id._id === idUsu)
+
+    if(!id){
+        return res.status(400).json({
+            ok: false,
+            msg: `No existe ningún usuario con el id ${idUsu} `
+        })
+    }
+
+    return res.status(200).json({
+        ok: true,
+        msg: 'Se encontró el siguiente usuario',
+        cont: {
+            id
+        }
+    })
+})
+
 
 app.get('/', (req,res) => {
     const arrUsuarios = arrJsnUsuarios;
