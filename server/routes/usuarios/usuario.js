@@ -195,7 +195,7 @@ const bcrypt = require('bcrypt');
 
 
 app.get('/mongoUsuarios', async (req,res) => {
-    const obtenerUsusario = await UsuarioModel.find()
+    const obtenerUsusario = await UsuarioModel.find({},{strPassword:0})
     if (!(obtenerUsusario.length > 0)){
         return res.status(400).json({
             ok: false,
