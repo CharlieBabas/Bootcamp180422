@@ -9,9 +9,19 @@ let SchemaUsuario = mongoose.Schema({
         type:String,
         required:[true,'No se recibió el strApellido, favor de ingresarlo']
     },
+
+    strDireccion:{
+        type:String,
+    },
+
     strEmail:{
         type:String,
         required:[true,'No se recibió el strEmail, favor de ingresarlo']
+    },
+
+    strPassword:{
+        type:String,
+        required:[true,'No se recibó el strPassword, favor de ingresarlo']
     }
 })
 

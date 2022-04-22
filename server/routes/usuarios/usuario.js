@@ -201,6 +201,7 @@ app.get('/mongoUsuarios', async (req,res) => {
         })
        
     }
+    
     return res.status(200).json({
         ok: true,
         msg: 'Se recibieron los usuarios de manera exitosa',
@@ -211,5 +212,40 @@ app.get('/mongoUsuarios', async (req,res) => {
 
     // return res.download(rutaDescarga, 'documento.html');
 });
+
+
+app.post('/', async (req,res) =>{
+    const body = req.body;
+    const usuarioBody = new UsuarioModel(body);
+    const err = usuarioBody.validateSync();
+    if(err){
+        return res.status(400).json({
+            ok:false,
+            msg: 'No se recibió uno o más campos, favor de validar',
+            cont: {
+                err
+            }
+        })
+    }
+
+    const obtenerUsuarios = await UsuarioModel.find({strEmail:body.strEmail})
+
+    if(obtenerUsuarios.length > 0){
+        return res.status(400).json({
+            ok:false,
+            msg: 'Ya existe el email ingresado',
+            cont: body.strEmail
+        })
+    }
+
+    const usuarioRegistrado = await usuarioBody.save();
+    return res.status(200).json({
+        ok:true,
+        msg: 'El usuario se ha sido registrado exitosamente',
+        const: {
+            usuarioRegistrado
+        }
+    })
+})
 
 module.exports = app;

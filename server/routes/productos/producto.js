@@ -1,5 +1,5 @@
 const express = require('express');
-const productoModel = require('../../models/producto/producto.model');
+const ProductoModel = require('../../models/producto/producto.model');
 const app = express.Router();
 
 // let arrJsnProd = [];
@@ -138,7 +138,6 @@ const app = express.Router();
 
 // })
 
-const ProductoModel = require('../../models/producto/producto.model')
 
 app.get('/db', async (req, res) => {
     const obtenerProductos = await ProductoModel.find()
@@ -147,6 +146,31 @@ app.get('/db', async (req, res) => {
         msg: 'Accedi a la ruta producto',
         cont: {
             obtenerProductos
+        }
+    })
+})
+
+app.post('/', async (req, res) => {
+    const body = req.body;
+    const productoBody = new ProductoModel(body)
+    const err = productoBody.validateSync();
+    // console.log(productoBody);
+    if(err){
+        return res.status(400).json({
+            ok:false,
+            msg: 'No se recibió uno o más campos, favor de validar',
+            cont: {
+                err
+            }
+        })
+    }
+
+    const productoRegistrado = await productoBody.save();
+    return res.status(200).json({
+        ok:true,
+        msg: 'El producto ha sido registrado exitosamente',
+        const: {
+            productoRegistrado
         }
     })
 })
