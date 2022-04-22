@@ -1,5 +1,7 @@
 const express = require('express');
+const UsuarioModel = require('../../models/usuario/usuario.model')
 const app = express.Router();
+const bcrypt = require('bcrypt');
 
 // let arrJsnUsuarios = [];
 
@@ -190,7 +192,7 @@ const app = express.Router();
 //     }
 // });
 
-const UsuarioModel = require('../../models/usuario/usuario.model')
+
 
 app.get('/mongoUsuarios', async (req,res) => {
     const obtenerUsusario = await UsuarioModel.find()
@@ -215,7 +217,7 @@ app.get('/mongoUsuarios', async (req,res) => {
 
 
 app.post('/', async (req,res) =>{
-    const body = req.body;
+    const body = { ...req.body , strPassword: req.body.strPassword ? bcrypt.hashSync(req.body.strPassword,10) : undefined };
     const usuarioBody = new UsuarioModel(body);
     const err = usuarioBody.validateSync();
     if(err){
