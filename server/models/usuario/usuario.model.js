@@ -11,7 +11,12 @@ let SchemaUsuario = mongoose.Schema({
     },
 
     strDireccion:{
+        type:String
+    },
+
+    strNombreUsuario:{
         type:String,
+        required:[true, 'No se recibió el strNombreUsuario, favor de ingresarlo']
     },
 
     strEmail:{

@@ -230,13 +230,25 @@ app.post('/', async (req,res) =>{
         })
     }
 
-    const obtenerUsuarios = await UsuarioModel.find({strEmail:body.strEmail})
+    const obtenerEmails = await UsuarioModel.find({strEmail:body.strEmail})
 
-    if(obtenerUsuarios.length > 0){
+    if(obtenerEmails.length > 0){
+        if(obtenerEmails.strEmail == body.strEmail){
+            return res.status(400).json({
+                ok:false,
+                msg: 'Ya existe el correo',
+                cont: body.strEmail
+            })
+        }
+    }
+
+    const obtenerUsName = await UsuarioModel.find({strNombreUsuario:body.strNombreUsuario})
+
+    if(obtenerUsName.length > 0){
         return res.status(400).json({
             ok:false,
-            msg: 'Ya existe el email ingresado',
-            cont: body.strEmail
+            msg: 'Ya existe el nombre de usuario ingresado',
+            cont: body.strNombreUsuario
         })
     }
 
