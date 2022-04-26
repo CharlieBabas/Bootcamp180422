@@ -165,6 +165,16 @@ app.post('/', async (req, res) => {
         })
     }
 
+    const encontrarProducto = await ProductoModel.findOne({strNombre:body.strNombre}, {strNombre:1})
+
+    if(encontrarProducto){
+        return res.status(400).json({
+            ok:false,
+            msg: 'Ya existe un proudcto con el nombre',
+            cont: body.strNombre
+        })
+    }
+
     const productoRegistrado = await productoBody.save();
     return res.status(200).json({
         ok:true,
@@ -231,4 +241,54 @@ app.put('/', async (req,res) => {
     
 })
 
+app.delete('/', async (req,res) =>{
+    
+    try {
+
+        const _idProducto = req.query._idProducto
+    
+        if(!_idProducto || _idProducto.length != 24){
+            return res.status(400).json({
+                ok: false,
+                msg: _idProducto ? 'El identificador no es valido' : 'No se recibió el identificador del producto',
+                cont: _idProducto
+            })
+        }
+
+        const encontrarProducto = await ProductoModel.findOne({_id: _idProducto, blnEstado:true})
+
+        if(!encontrarProducto){
+            return res.status(400).json({
+                ok:false,
+                msg: 'No existe ningún producto con el id',
+                cont: _idProducto
+            })
+        }
+
+        // const borrarProducto = await ProductoModel.findByIdAndDelete(_idProducto)
+        const borrarProducto = await ProductoModel.findOneAndUpdate({_id:_idProducto}, {$set: {blnEstado:false}}, {new:true})
+        if(!borrarProducto){
+            return res.status(400).json({
+                    ok:false,
+                    msg: 'ocurrió un error al eliminar el producto',
+                    cont: _idProducto
+            })
+        }
+
+        return res.status(200).json({
+            ok:true,
+            msg: 'Se ha eliminado el producto correctamente',
+            cont: borrarProducto
+        })
+        
+    } catch (error) {
+        return res.status(400).json({
+            ok:false,
+            msg: 'ocurrió un error en el servidor',
+            cont: error
+        })
+    }
+
+
+})
 module.exports = app;

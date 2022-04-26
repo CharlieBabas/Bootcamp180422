@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 let SchemaProducto = mongoose.Schema({
+
+    blnEstado:{
+        type: Boolean,
+        default: true
+    },
     strNombre:{
         type: String,
         required:[true,'No se recibió el strNombre, favor de ingresarlo']

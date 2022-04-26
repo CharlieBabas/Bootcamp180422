@@ -317,4 +317,36 @@ app.put('/', async (req,res) => {
     }
 })
 
+app.delete('/', async (req,res) =>{
+    try {
+        const _idUsuario = req.query._idUsuario
+        const blnEstado = req.query.blnEstado == false ? false : true
+        
+        if(!_idUsuario || _idUsuario.length != 24){
+            return res.status(400).json({
+                ok: false,
+                msg: _idProducto ? 'El identificador no es valido' : 'No se recibió el identificador del producto',
+                cont: _idProducto
+            })
+        }
+
+        return res.status(200).json({
+            ok:false,
+            msg: 'No existe ningún usuario con el id',
+            cont: {
+                idUsuario: _idUsuario,
+                Estado: blnEstado
+            }
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            ok:false,
+            msg: 'ocurrió un error en el servidor',
+            cont: error
+        })
+    }
+})
+
 module.exports = app;
