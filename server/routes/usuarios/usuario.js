@@ -2,6 +2,7 @@ const express = require('express');
 const UsuarioModel = require('../../models/usuario/usuario.model')
 const app = express.Router();
 const bcrypt = require('bcrypt');
+const usuarioModel = require('../../models/usuario/usuario.model');
 
 // let arrJsnUsuarios = [];
 
@@ -233,13 +234,13 @@ app.post('/', async (req,res) =>{
     const obtenerEmails = await UsuarioModel.find({strEmail:body.strEmail})
 
     if(obtenerEmails.length > 0){
-        if(obtenerEmails.strEmail == body.strEmail){
+        // if(obtenerEmails.strEmail == body.strEmail){
             return res.status(400).json({
                 ok:false,
                 msg: 'Ya existe el correo',
                 cont: body.strEmail
             })
-        }
+        // }
     }
 
     const obtenerUsName = await UsuarioModel.find({strNombreUsuario:body.strNombreUsuario})
@@ -260,6 +261,60 @@ app.post('/', async (req,res) =>{
             usuarioRegistrado
         }
     })
+})
+
+app.put('/', async (req,res) => {
+    try {
+        const _idUsuario = req.body._idUsuario;
+
+        if(!_idUsuario || _idUsuario.length != 24){
+            return res.status(400).json({
+                ok:false,
+                msg: _idUsuario ? 'El identificador no es válido' : 'No se recibió el id del usuario',
+                cont: _idUsuario
+            })
+        }
+
+        const encontrarUsuario = await UsuarioModel.findById(_idUsuario);
+
+        if(!encontrarUsuario){
+            return res.status(400).json({
+                ok:false,
+                msg: 'No se encontró ningun usuario con el id',
+                cont: _idUsuario
+            })
+        }
+
+        const encontrarUsName = await usuarioModel.findOne({strNombreUsuario: req.body.strNombreUsuario, _id: { $ne: _idUsuario }});
+        if(encontrarUsName){
+            // if(encontrarUsName.strNombreUsuario != encontrarUsuario.strNombreUsuario){
+                return res.status(400).json({
+                    ok:false,
+                    msg: 'Ya existe ese nombre de usuario',
+                    cont: req.body.strNombreUsuario
+                })
+            // }
+            
+        }
+
+        const actualizarUsuario = await UsuarioModel.findByIdAndUpdate(_idUsuario, {$set:{strNombre: req.body.strNombre, strApellido: req.body.strApellido, strDireccion: req.body.strDireccion}},{new:true})
+
+        return res.status(200).json({
+            ok: true,
+            msg: 'Se han modificado los datos del usuario de manera exitosa',
+            cont:{
+                usuarioAnterior: encontrarUsuario,
+                usuarioActual: actualizarUsuario
+            }
+        })
+        // console.log(actualizarUsuario);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok:false,
+            msg: 'Ocurrió un error en el servidor',
+        })
+    }
 })
 
 module.exports = app;

@@ -175,4 +175,60 @@ app.post('/', async (req, res) => {
     })
 })
 
+app.put('/', async (req,res) => {
+    try {
+        const _idProducto = req.query._idProducto;
+        // console.log(_idProducto.length);
+
+        if(!_idProducto ||_idProducto.length != 24){
+            return res.status(400).json({
+                ok: false,
+                msg: _idProducto ? 'El identificador no es valido' : 'No se recibió el identificador del producto',
+                cont: _idProducto
+            })
+        }
+        const encontrarProducto = await ProductoModel.findOne({_id: _idProducto});
+
+        if(!encontrarProducto){
+            return res.status(400).json({
+                ok: false,
+                msg: 'No se encontró ningun producto con el id',
+                cont: _idProducto
+            })
+        }
+
+        // const actualizarProducto = await ProductoModel.updateOne({_id: _idProducto},{$set:{...req.body}});
+        const actualizarProducto = await ProductoModel.findByIdAndUpdate( _idProducto, {$set: {...req.body}}, {new:true});
+        if(!actualizarProducto){
+            return res.status(200).json({
+                ok: false,
+                msg: 'No se pudo actualizar el producto, intente de nuevo',
+                cont: {
+                    
+                }
+            })
+
+        }
+
+        return res.status(200).json({
+            ok: true,
+            msg: 'Se ha modificado el producto de manera correcta',
+            cont: {
+                productoAnterior: encontrarProducto,
+                productoActualiz: actualizarProducto
+            }
+        })
+
+        // console.log(encontrarProducto);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok:false,
+            msg: 'Ocurrió un error en el servidor',
+        })
+        
+    }
+    
+})
+
 module.exports = app;
