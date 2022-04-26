@@ -320,19 +320,31 @@ app.put('/', async (req,res) => {
 app.delete('/', async (req,res) =>{
     try {
         const _idUsuario = req.query._idUsuario
-        const blnEstado = req.query.blnEstado == false ? false : true
+        const blnEstado = req.query.blnEstado == "false" ? false : true
         
         if(!_idUsuario || _idUsuario.length != 24){
             return res.status(400).json({
                 ok: false,
-                msg: _idProducto ? 'El identificador no es valido' : 'No se recibió el identificador del producto',
-                cont: _idProducto
+                msg: _idUsuario ? 'El identificador no es valido' : 'No se recibió el identificador del producto',
+                cont: _idUsuario
+            })
+        }
+
+        const modificarEstadoUsuario = await UsuarioModel.findOneAndUpdate({_id: _idUsuario},{$set:{blnEstado:blnEstado}}, {new:true})
+
+        if(!modificarEstadoUsuario){
+            return res.status(400).json({
+                ok:false,
+                msg: 'No se encontró ningún usuario con el id',
+                cont: {
+                    idUsuario: _idUsuario,
+                }
             })
         }
 
         return res.status(200).json({
-            ok:false,
-            msg: 'No existe ningún usuario con el id',
+            ok:true,
+            msg: blnEstado == true ? 'Se activó el usuario de manera exitosa' : 'Se desactivó el usuario de manera exitosa',
             cont: {
                 idUsuario: _idUsuario,
                 Estado: blnEstado
