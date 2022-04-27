@@ -2,7 +2,7 @@ const express = require('express');
 const UsuarioModel = require('../../models/usuario/usuario.model')
 const app = express.Router();
 const bcrypt = require('bcrypt');
-const usuarioModel = require('../../models/usuario/usuario.model');
+// const usuarioModel = require('../../models/usuario/usuario.model');
 
 // let arrJsnUsuarios = [];
 
@@ -287,7 +287,7 @@ app.put('/', async (req,res) => {
             })
         }
 
-        const encontrarUsName = await usuarioModel.findOne({strNombreUsuario: req.body.strNombreUsuario, _id: { $ne: _idUsuario }});
+        const encontrarUsName = await UsuarioModel.findOne({strNombreUsuario: req.body.strNombreUsuario, _id: { $ne: _idUsuario }});
         if(encontrarUsName){
             // if(encontrarUsName.strNombreUsuario != encontrarUsuario.strNombreUsuario){
                 return res.status(400).json({
