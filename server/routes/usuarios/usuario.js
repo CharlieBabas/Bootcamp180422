@@ -1,5 +1,6 @@
 const express = require('express');
 const UsuarioModel = require('../../models/usuario/usuario.model')
+const EmpresaModel = require('../../models/empresa/empresa.model')
 const app = express.Router();
 const bcrypt = require('bcrypt');
 // const usuarioModel = require('../../models/usuario/usuario.model');
@@ -255,6 +256,15 @@ app.post('/', async (req,res) =>{
         })
     }
 
+    const encontrarEmpresa = await EmpresaModel.findOne({_id: req.body.idEmpresa})
+    if(!encontrarEmpresa){
+        return res.status(400).json({
+            ok:false,
+            msg:'No existe ninguna empresa con el id',
+            cont: req.body.idEmpresa
+        })
+    }
+
     const usuarioRegistrado = await usuarioBody.save();
     return res.status(200).json({
         ok:true,
@@ -299,7 +309,16 @@ app.put('/', async (req,res) => {
             
         }
 
-        const actualizarUsuario = await UsuarioModel.findByIdAndUpdate(_idUsuario, {$set:{strNombre: req.body.strNombre, strApellido: req.body.strApellido, strDireccion: req.body.strDireccion, strNombreUsuario: req.body.strNombreUsuario}},{new:true})
+        const encontrarEmpresa = await EmpresaModel.findOne({_id: req.body.idEmpresa})
+        if(!encontrarEmpresa){
+            return res.status(400).json({
+                ok:false,
+                msg:'No existe ninguna empresa con el id',
+                cont: req.body.idEmpresa
+            })
+        }
+
+        const actualizarUsuario = await UsuarioModel.findByIdAndUpdate(_idUsuario, {$set:{strNombre: req.body.strNombre, strApellido: req.body.strApellido, strDireccion: req.body.strDireccion, strNombreUsuario: req.body.strNombreUsuario, idEmpresa: req.body.idEmpresa}},{new:true})
 
         return res.status(200).json({
             ok: true,

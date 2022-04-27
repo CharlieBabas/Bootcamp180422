@@ -31,6 +31,10 @@ let SchemaUsuario = mongoose.Schema({
     strPassword:{
         type:String,
         required:[true,'No se recibó el strPassword, favor de ingresarlo']
+    },
+    idEmpresa:{
+        type: mongoose.Types.ObjectId,
+        required:[true,'No se reciibó el idEmpresa, favor de ingresarlo']
     }
 })
 
