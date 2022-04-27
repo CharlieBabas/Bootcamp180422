@@ -196,7 +196,9 @@ const usuarioModel = require('../../models/usuario/usuario.model');
 
 
 app.get('/mongoUsuarios', async (req,res) => {
-    const obtenerUsusario = await UsuarioModel.find({},{strPassword:0})
+    const blnEstado = req.query.blnEstado == "false" ? false : true
+
+    const obtenerUsusario = await UsuarioModel.find({ blnEstado:blnEstado },{strPassword:0})
     if (!(obtenerUsusario.length > 0)){
         return res.status(400).json({
             ok: false,
@@ -275,7 +277,7 @@ app.put('/', async (req,res) => {
             })
         }
 
-        const encontrarUsuario = await UsuarioModel.findById(_idUsuario);
+        const encontrarUsuario = await UsuarioModel.findOne({_id:_idUsuario, blnEstado:true});
 
         if(!encontrarUsuario){
             return res.status(400).json({
@@ -297,7 +299,7 @@ app.put('/', async (req,res) => {
             
         }
 
-        const actualizarUsuario = await UsuarioModel.findByIdAndUpdate(_idUsuario, {$set:{strNombre: req.body.strNombre, strApellido: req.body.strApellido, strDireccion: req.body.strDireccion}},{new:true})
+        const actualizarUsuario = await UsuarioModel.findByIdAndUpdate(_idUsuario, {$set:{strNombre: req.body.strNombre, strApellido: req.body.strApellido, strDireccion: req.body.strDireccion, strNombreUsuario: req.body.strNombreUsuario}},{new:true})
 
         return res.status(200).json({
             ok: true,

@@ -140,7 +140,9 @@ const app = express.Router();
 
 
 app.get('/db', async (req, res) => {
-    const obtenerProductos = await ProductoModel.find()
+    const blnEstado = req.query.blnEstado == "false" ? false : true
+
+    const obtenerProductos = await ProductoModel.find({blnEstado:blnEstado})
     return res.status(200).json({
         ok:true,
         msg: 'Accedi a la ruta producto',
@@ -197,7 +199,7 @@ app.put('/', async (req,res) => {
                 cont: _idProducto
             })
         }
-        const encontrarProducto = await ProductoModel.findOne({_id: _idProducto});
+        const encontrarProducto = await ProductoModel.findOne({_id: _idProducto, blnEstado:true});
 
         if(!encontrarProducto){
             return res.status(400).json({
