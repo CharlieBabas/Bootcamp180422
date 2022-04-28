@@ -199,8 +199,22 @@ const bcrypt = require('bcrypt');
 app.get('/mongoUsuarios', async (req,res) => {
     const blnEstado = req.query.blnEstado == "false" ? false : true
 
-    const obtenerUsusario = await UsuarioModel.find({ blnEstado:blnEstado },{strPassword:0})
-    if (!(obtenerUsusario.length > 0)){
+    const obtenerUsuarioJoin = await UsuarioModel.aggregate([
+        {
+            $lookup:{
+                from: EmpresaModel.collection.name,
+                localField: "idEmpresa",
+                foreignField: "_id",
+                as: "empre_info"
+            }
+        },
+        // {
+        //     $unwind: "$empre_info"
+        // }
+    ])
+
+    // const obtenerUsusario = await UsuarioModel.find({ blnEstado:blnEstado },{strPassword:0})
+    if (!(obtenerUsuarioJoin.length > 0)){
         return res.status(400).json({
             ok: false,
             msg: 'No se encontró información',
@@ -212,7 +226,7 @@ app.get('/mongoUsuarios', async (req,res) => {
         ok: true,
         msg: 'Se recibieron los usuarios de manera exitosa',
         cont: {
-            obtenerUsusario
+            obtenerUsuarioJoin
         }
     })
 
@@ -310,13 +324,13 @@ app.put('/', async (req,res) => {
         }
 
         const encontrarEmpresa = await EmpresaModel.findOne({_id: req.body.idEmpresa})
-        if(!encontrarEmpresa){
-            return res.status(400).json({
-                ok:false,
-                msg:'No existe ninguna empresa con el id',
-                cont: req.body.idEmpresa
-            })
-        }
+    if(!encontrarEmpresa){
+        return res.status(400).json({
+            ok:false,
+            msg:'No existe ninguna empresa con el id',
+            cont: req.body.idEmpresa
+        })
+    }
 
         const actualizarUsuario = await UsuarioModel.findByIdAndUpdate(_idUsuario, {$set:{strNombre: req.body.strNombre, strApellido: req.body.strApellido, strDireccion: req.body.strDireccion, strNombreUsuario: req.body.strNombreUsuario, idEmpresa: req.body.idEmpresa}},{new:true})
 
