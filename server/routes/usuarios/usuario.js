@@ -45,7 +45,7 @@ app.get('/mongoUsuarios', verifAcceso, async (req,res) => {
 });
 
 
-app.post('/', async (req,res) =>{
+app.post('/', verifAcceso, async (req,res) =>{
     const body = { ...req.body , strPassword: req.body.strPassword ? bcrypt.hashSync(req.body.strPassword,10) : undefined };
     const usuarioBody = new UsuarioModel(body);
     const err = usuarioBody.validateSync();
@@ -100,7 +100,7 @@ app.post('/', async (req,res) =>{
     })
 })
 
-app.put('/', async (req,res) => {
+app.put('/', verifAcceso, async (req,res) => {
     try {
         const _idUsuario = req.body._idUsuario;
 
@@ -163,7 +163,7 @@ app.put('/', async (req,res) => {
     }
 })
 
-app.delete('/', async (req,res) =>{
+app.delete('/', verifAcceso, async (req,res) =>{
     try {
         const _idUsuario = req.query._idUsuario
         const blnEstado = req.query.blnEstado == "false" ? false : true
