@@ -47,7 +47,7 @@ app.post('/login', async (req,res) =>{
         })
 
     } catch (error) {
-        return res.status(400).json({
+        return res.status(500).json({
             ok:false,
             msg:'Ocurrió un error en el servidor',
             cont: {

@@ -25,10 +25,7 @@ let SchemaApi = mongoose.Schema({
         type:Boolean,
         default: false
     },
-    blnRolDefault:{
-        type:Boolean,
-        default: false
-    }
+   
 })
 
-module.exports = mongoose.model('apu', SchemaApi)
+module.exports = mongoose.model('api', SchemaApi)
