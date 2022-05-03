@@ -13,21 +13,17 @@ let SchemaUsuario = mongoose.Schema({
         type:String,
         required:[true,'No se recibió el strApellido, favor de ingresarlo']
     },
-
     strDireccion:{
         type:String
     },
-
     strNombreUsuario:{
         type:String,
         required:[true, 'No se recibió el strNombreUsuario, favor de ingresarlo']
     },
-
     strEmail:{
         type:String,
         required:[true,'No se recibió el strEmail, favor de ingresarlo']
     },
-
     strPassword:{
         type:String,
         required:[true,'No se recibó el strPassword, favor de ingresarlo']
@@ -35,6 +31,13 @@ let SchemaUsuario = mongoose.Schema({
     idEmpresa:{
         type: mongoose.Types.ObjectId,
         required:[true,'No se reciibó el idEmpresa, favor de ingresarlo']
+    },
+    strImagen:{
+        type: String,
+        default: 'default.jpg'
+    },
+    idObjRol:{
+        type: mongoose.Types.ObjectId
     }
 })
 

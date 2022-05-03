@@ -2,10 +2,11 @@ require('./config/config');
 require('colors');
 const express = require('express');
 const mongoose = require('mongoose');
-const app = express();
-
+const fileUpload = require('express-fileupload');
+const app = express()
+app.use(fileUpload())
 app.use(express.urlencoded({ extended:true }))
-app.use('/api', require('./routes/index'));
+app.use('/api', require('./routes/index'))
 // console.log(process.env.URLDB, 'URLDB');
 mongoose.connect(process.env.URLDB, (err, resp) => {
     if(err){

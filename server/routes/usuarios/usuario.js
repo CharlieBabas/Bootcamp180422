@@ -1,11 +1,11 @@
 const express = require('express');
 const UsuarioModel = require('../../models/usuario/usuario.model')
 const EmpresaModel = require('../../models/empresa/empresa.model')
+const RolModel = require('../../models/permisos/rol.model')
 const app = express.Router();
 const bcrypt = require('bcrypt');
 const {verifAcceso} = require('../../middlewares/permisos')
-
-
+const cargaArchivo = require('../../library/cargarArchivo')
 
 app.get('/mongoUsuarios', verifAcceso, async (req,res) => {
     const blnEstado = req.query.blnEstado == "false" ? false : true
@@ -45,59 +45,103 @@ app.get('/mongoUsuarios', verifAcceso, async (req,res) => {
 });
 
 
-app.post('/', verifAcceso, async (req,res) =>{
-    const body = { ...req.body , strPassword: req.body.strPassword ? bcrypt.hashSync(req.body.strPassword,10) : undefined };
-    const usuarioBody = new UsuarioModel(body);
-    const err = usuarioBody.validateSync();
-    if(err){
-        return res.status(400).json({
-            ok:false,
-            msg: 'No se recibió uno o más campos, favor de validar',
-            cont: {
-                err
-            }
-        })
-    }
+app.post('/',  async (req,res) =>{
 
-    const obtenerEmails = await UsuarioModel.find({strEmail:body.strEmail})
-
-    if(obtenerEmails.length > 0){
-        // if(obtenerEmails.strEmail == body.strEmail){
+    try {
+        
+    
+        const body = { ...req.body , strPassword: req.body.strPassword ? bcrypt.hashSync(req.body.strPassword,10) : undefined };
+        const usuarioBody = new UsuarioModel(body);
+        const err = usuarioBody.validateSync();
+    
+        if(err){
             return res.status(400).json({
                 ok:false,
-                msg: 'Ya existe el correo',
-                cont: body.strEmail
+                msg: 'No se recibió uno o más campos, favor de validar',
+                cont: {
+                    err
+                }
             })
-        // }
-    }
-
-    const obtenerUsName = await UsuarioModel.find({strNombreUsuario:body.strNombreUsuario})
-
-    if(obtenerUsName.length > 0){
-        return res.status(400).json({
-            ok:false,
-            msg: 'Ya existe el nombre de usuario ingresado',
-            cont: body.strNombreUsuario
-        })
-    }
-
-    const encontrarEmpresa = await EmpresaModel.findOne({_id: req.body.idEmpresa})
-    if(!encontrarEmpresa){
-        return res.status(400).json({
-            ok:false,
-            msg:'No existe ninguna empresa con el id',
-            cont: req.body.idEmpresa
-        })
-    }
-
-    const usuarioRegistrado = await usuarioBody.save();
-    return res.status(200).json({
-        ok:true,
-        msg: 'El usuario se ha sido registrado exitosamente',
-        const: {
-            usuarioRegistrado
         }
-    })
+    
+        const obtenerEmails = await UsuarioModel.find({strEmail:body.strEmail})
+    
+        if(obtenerEmails.length > 0){
+            // if(obtenerEmails.strEmail == body.strEmail){
+                return res.status(400).json({
+                    ok:false,
+                    msg: 'Ya existe el correo',
+                    cont: body.strEmail
+                })
+            // }
+        }
+    
+        const obtenerUsName = await UsuarioModel.find({strNombreUsuario:body.strNombreUsuario})
+    
+        if(obtenerUsName.length > 0){
+            return res.status(400).json({
+                ok:false,
+                msg: 'Ya existe el nombre de usuario ingresado',
+                cont: body.strNombreUsuario
+            })
+        }
+    
+        const encontrarEmpresa = await EmpresaModel.findOne({_id: req.body.idEmpresa})
+        if(!encontrarEmpresa){
+            return res.status(400).json({
+                ok:false,
+                msg:'No existe ninguna empresa con el id',
+                cont: req.body.idEmpresa
+            })
+        }
+
+        if(body.idObjRol){
+            const encontrarRol = await RolModel.findOne({_id: body.idObjRol})
+
+            if(!encontrarRol){
+                return res.status(400).json({
+                    ok:false,
+                    msg: 'No se encontro el Rol indicado'
+                })
+            }
+        }else{
+            const encontrarRol = await RolModel.findOne({blnRolDefault: true})
+
+            usuarioBody.idObjRol = encontrarRol._id;
+            // console.log(encontrarRol._id)
+        }
+
+        
+
+        if(req.files){
+            if(!req.files.strImagen){
+                return res.status(400).json({
+                    ok:false,
+                    msg: 'No se recibió un archivo strImagen',
+                })
+            }
+
+            usuarioBody.strImagen = await cargaArchivo.subirArchivo(req.files.strImagen, 'usuario', ['image/png', 'image/jpg'])
+        }
+        
+        const usuarioRegistrado = await usuarioBody.save();
+        return res.status(200).json({
+            ok:true,
+            msg: 'El usuario se ha sido registrado exitosamente',
+            const: {
+                usuarioRegistrado
+            }
+        })
+    } catch (error) {
+        const err = Error(error)
+
+        return res.status(500).json({
+            ok:false,
+            msg:'Ocurrió un error en el servidor',
+            cont: err.message ? err.message: err.name ? err.name : err
+        })
+    }
+    
 })
 
 app.put('/', verifAcceso, async (req,res) => {
