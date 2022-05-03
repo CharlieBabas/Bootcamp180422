@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const {verifAcceso} = require('../../middlewares/permisos')
 const cargaArchivo = require('../../library/cargarArchivo')
 
-app.get('/mongoUsuarios', verifAcceso, async (req,res) => {
+app.get('/mongoUsuarios', async (req,res) => {
     const blnEstado = req.query.blnEstado == "false" ? false : true
 
     const obtenerUsuarioJoin = await UsuarioModel.aggregate([
@@ -21,6 +21,27 @@ app.get('/mongoUsuarios', verifAcceso, async (req,res) => {
         },
         {
             $unwind: "$empre_info"
+        },
+        {
+            $lookup:{
+                from: RolModel.collection.name,
+                let: { idObjRol: '$idObjRol' },
+                pipeline:[
+                    {
+                        $match:{
+                            $expr:{
+                                $eq: ['$_id', '$$idObjRol']
+                            }
+                        }
+                    },                    
+                ],
+                // localField: "idObjRol",
+                // foreignField: "_id",
+                as: "rol_info"
+            }
+        },
+        {
+            $unwind: "$rol_info"
         }
     ])
 

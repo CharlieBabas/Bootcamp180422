@@ -94,12 +94,12 @@ app.get('/', async (req,res) => {
                                 }  
                             }
                         },
-                    {
-                        $project: {
-                            strRuta: 1,
-                            strMetodo: 1,
+                        {
+                            $project: {
+                                strRuta: 1,
+                                strMetodo: 1,
+                            }
                         }
-                    }
                     ],
                     as: 'apis'
                 }
