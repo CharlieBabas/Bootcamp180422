@@ -3,14 +3,14 @@ process.env.PORT = process.env.PORT || 3000;
 let urlDB;
 
 if(process.env.NODE_ENV === 'dev'){
-    urlDB = "mongodb://localhost:27017/localbootcamp";
+    urlDB = "mongodb+srv://caguilard:Bmas.sigma.2021@cluster0.hcvmf.mongodb.net/bootcamp?retryWrites=true&w=majority";
 }
 else{
-    urlDB = "mongodb://localhost:27017/localbootcamp";
+    urlDB = "mongodb+srv://caguilard:Bmas.sigma.2021@cluster0.hcvmf.mongodb.net/bootcamp?retryWrites=true&w=majority";
 }
 
 process.env.urlDB = urlDB;
 
 process.env.SEED = process.env.SEED || 'Firma-Secreta';
 
-process.env.CADUCIDAD_TOKEN = process.env.CADUCIDAD_TOKEN || '5m';
+process.env.CADUCIDAD_TOKEN = process.env.CADUCIDAD_TOKEN || '8h';

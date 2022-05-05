@@ -5,12 +5,16 @@ const RolModel = require('../../models/permisos/rol.model')
 const app = express.Router();
 const bcrypt = require('bcrypt');
 const {verifAcceso} = require('../../middlewares/permisos')
-const cargaArchivo = require('../../library/cargarArchivo')
+const cargaArchivo = require('../../library/cargarArchivo');
+const apiModel = require('../../models/permisos/api.model');
 
-app.get('/mongoUsuarios', async (req,res) => {
+app.get('/mongoUsuarios', verifAcceso, async (req,res) => {
     const blnEstado = req.query.blnEstado == "false" ? false : true
 
     const obtenerUsuarioJoin = await UsuarioModel.aggregate([
+        {
+            $match: { blnEstado: blnEstado}
+        },
         {
             $lookup:{
                 from: EmpresaModel.collection.name,
@@ -32,8 +36,42 @@ app.get('/mongoUsuarios', async (req,res) => {
                             $expr:{
                                 $eq: ['$_id', '$$idObjRol']
                             }
+                        },
+                        
+                    },
+                    {
+                        $lookup:{
+                            from: apiModel.collection.name,
+                            let: { arrObjIdApis: '$arrObjIdApis' },
+                            pipeline:[
+                                {
+                                    $match: {
+                                        $expr:{
+                                            $in: ['$_id','$$arrObjIdApis']
+                                        }  
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        strRuta: 1,
+                                        strMetodo: 1,
+                                    }
+                                }
+                                                    
+                            ],
+                            as:'apis',
                         }
-                    },                    
+                    },
+                    {
+                        $project:{
+                            
+                            strNombre:1,
+                            strDescripcion:1,
+                            blnRolDefault:1,
+                            blnEstado:1,
+                            apis:1
+                        }
+                    }
                 ],
                 // localField: "idObjRol",
                 // foreignField: "_id",
@@ -42,7 +80,8 @@ app.get('/mongoUsuarios', async (req,res) => {
         },
         {
             $unwind: "$rol_info"
-        }
+        },
+        
     ])
 
     // const obtenerUsusario = await UsuarioModel.find({ blnEstado:blnEstado },{strPassword:0})
