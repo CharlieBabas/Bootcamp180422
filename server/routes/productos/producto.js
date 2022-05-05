@@ -143,6 +143,19 @@ app.get('/db', async (req, res) => {
     const blnEstado = req.query.blnEstado == "false" ? false : true
 
     const obtenerProductos = await ProductoModel.find({blnEstado:blnEstado})
+
+    // función con aggregate
+
+    const obtenerProudctoConAggregate = await ProductoModel.aggregate([
+        { $match: { $expr: { $eq: ["$blnEstado", blnEstado] } } },
+        { $project: { strNombre:1, nmbPrecio:1 } }
+    ]);
+
+    console.log(obtenerProudctoConAggregate);
+
+    // función con aggregate
+
+
     return res.status(200).json({
         ok:true,
         msg: 'Accedi a la ruta producto',
